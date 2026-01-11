@@ -1,0 +1,12 @@
+{
+  "name": "vanung-admission",
+  "version": "1.0.0",
+  "description": "Vanung University Admission Landing Page",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
