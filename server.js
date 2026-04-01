@@ -267,13 +267,4 @@ function handleError(err) {
     }
 }
 
-// 靜態檔案路徑必須放在後端 Webhook 路由之後
-app.use(express.static(__dirname));
-app.get('*', (req, res) => {
-    // 排除 API 路徑，避免攔截 webhook
-    if (req.path.startsWith('/callback') || req.path.startsWith('/test')) {
-        return res.status(404).send('Not Found');
-    }
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
 app.listen(port, () => { console.log(`🚀 萬能招生 Bot 已啟動於 Port: ${port}`); });
