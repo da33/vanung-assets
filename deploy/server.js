@@ -124,7 +124,7 @@ function handleEvent(event) {
                             type: 'box', layout: 'vertical', margin: 'lg', spacing: 'sm', contents: [
                                 { type: 'button', style: 'primary', color: '#00B2FF', height: 'sm', action: { type: 'uri', label: '📞 直接撥打諮詢專線', uri: `tel:${telNo}` } },
                                 { type: 'button', style: 'secondary', height: 'sm', action: { type: 'uri', label: '💬 LINE 免費通話', uri: `https://line.me/R/call/8/${telNo}` } },
-                                { type: 'button', style: 'link', height: 'sm', action: { type: 'uri', label: '📍 開啟地圖導航', uri: 'https://www.google.com/maps?q=萬能科技大學招生處' } }
+                                { type: 'button', style: 'link', height: 'sm', action: { type: 'uri', label: '📍 開啟地圖導航', uri: 'https://www.google.com/maps?q=%E8%90%AC%E8%83%BD%E7%A7%91%E6%8A%80%E5%A4%A7%E5%AD%B8%E6%8B%9B%E7%94%9F%E8%99%95' } }
                             ]
                         }
                     ]
