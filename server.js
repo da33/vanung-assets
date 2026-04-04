@@ -215,7 +215,38 @@ function handleEvent(event) {
         }).catch(handleError);
     }
 
-    // E. 預設回覆
+    // E. 入學管道
+    if (userText.match(/入學|管道|招生方式/)) {
+        return client.replyMessage(event.replyToken, {
+            type: 'flex',
+            altText: '萬能科技大學 - 入學管道',
+            contents: {
+                type: 'bubble',
+                hero: { type: 'image', url: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1000', size: 'full', aspectRatio: '20:13', aspectMode: 'cover' },
+                body: {
+                    type: 'box', layout: 'vertical', contents: [
+                        { type: 'text', text: '多元入學管道', weight: 'bold', size: 'xl' },
+                        { type: 'text', text: '選擇最適合你的升學方式', size: 'sm', color: '#999999', margin: 'md' },
+                        { type: 'separator', margin: 'lg' },
+                        { type: 'box', layout: 'vertical', margin: 'lg', spacing: 'md', contents: [
+                            { type: 'text', text: '📝 個人申請', size: 'md', weight: 'bold' },
+                            { type: 'text', text: '📊 繁星推薦', size: 'md', weight: 'bold' },
+                            { type: 'text', text: '🎯 技優甄審', size: 'md', weight: 'bold' },
+                            { type: 'text', text: '📚 統測分發', size: 'md', weight: 'bold' },
+                            { type: 'text', text: '🌟 獨立招生', size: 'md', weight: 'bold' }
+                        ]}
+                    ]
+                },
+                footer: {
+                    type: 'box', layout: 'vertical', contents: [
+                        { type: 'button', style: 'primary', color: '#00B2FF', action: { type: 'uri', label: '查看詳細說明', uri: 'https://administration.vnu.edu.tw/ac/2433' } }
+                    ]
+                }
+            }
+        }).catch(handleError);
+    }
+
+    // F. 預設回覆
     return client.replyMessage(event.replyToken, {
         type: 'text',
         text: `您好！歡迎瀏覽萬能招生處。我可以為您提供簡章、獎學金以及系所資訊。請點擊選單或輸入關鍵字與我互動！`

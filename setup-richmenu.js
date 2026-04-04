@@ -13,19 +13,27 @@ const richMenu = {
     areas: [
         {
             bounds: { x: 0, y: 0, width: 833, height: 843 },
-            action: { type: "postback", data: "簡章", displayText: "查看招生簡章" }
+            action: { type: "postback", data: "簡章", displayText: "📋 查看招生簡章" }
         },
         {
             bounds: { x: 833, y: 0, width: 834, height: 843 },
-            action: { type: "postback", data: "諮詢", displayText: "諮詢專線" }
+            action: { type: "postback", data: "獎", displayText: "💰 獎學金資訊" }
         },
         {
             bounds: { x: 1667, y: 0, width: 833, height: 843 },
-            action: { type: "postback", data: "獎", displayText: "獎學金資訊" }
+            action: { type: "postback", data: "諮詢", displayText: "💬 真人客服" }
         },
         {
-            bounds: { x: 0, y: 843, width: 2500, height: 843 },
-            action: { type: "postback", data: "系所", displayText: "系所介紹" }
+            bounds: { x: 0, y: 843, width: 833, height: 843 },
+            action: { type: "postback", data: "系所", displayText: "🏫 系所介紹" }
+        },
+        {
+            bounds: { x: 833, y: 843, width: 834, height: 843 },
+            action: { type: "postback", data: "入學管道", displayText: "🎓 入學管道" }
+        },
+        {
+            bounds: { x: 1667, y: 843, width: 833, height: 843 },
+            action: { type: "uri", uri: "https://www.google.com/maps/search/?api=1&query=萬能科技大學", label: "📍 校園導覽" }
         }
     ]
 };
@@ -34,13 +42,23 @@ async function setup() {
     try {
         console.log('🚀 建立 Rich Menu...');
         const richMenuId = await client.createRichMenu(richMenu);
-        console.log(`✅ Rich Menu ID: ${richMenuId}`);
-        console.log('\n下一步：');
-        console.log('1. 在 LINE Developers Console 上傳選單圖片');
-        console.log('2. 或使用以下指令設為預設選單：');
-        console.log(`   node -e "require('@line/bot-sdk').Client({channelAccessToken:'${process.env.LINE_CHANNEL_ACCESS_TOKEN.trim()}'}).setDefaultRichMenu('${richMenuId}')"`);
+        console.log(`✅ Rich Menu 已建立: ${richMenuId}`);
+
+        console.log('\n🔗 連結到 Bot...');
+        await client.linkRichMenuToUser('@tlp8240j', richMenuId);
+        console.log('✅ 已連結到 Bot');
+
+        console.log('\n📝 設為預設選單...');
+        await client.setDefaultRichMenu(richMenuId);
+        console.log('✅ 已設為預設選單');
+
+        console.log('\n✨ 完成！請在 LINE Developers Console 上傳選單圖片');
+        console.log(`Rich Menu ID: ${richMenuId}`);
     } catch (err) {
         console.error('❌ 錯誤:', err.message);
+        if (err.originalError) {
+            console.error(JSON.stringify(err.originalError.response?.data, null, 2));
+        }
     }
 }
 
