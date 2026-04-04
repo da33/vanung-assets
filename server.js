@@ -1,7 +1,56 @@
 const express = require('express');
 const path = require('path');
 const line = require('@line/bot-sdk');
+const https = require('https');
 require('dotenv').config();
+
+// AI 客服對話記錄（記憶體暫存）
+const aiSessions = {};
+
+async function askMiniMax(userId, userMessage) {
+    if (!aiSessions[userId]) aiSessions[userId] = [];
+    aiSessions[userId].push({ role: 'user', content: userMessage });
+    // 只保留最近 10 則
+    if (aiSessions[userId].length > 10) aiSessions[userId] = aiSessions[userId].slice(-10);
+
+    const body = JSON.stringify({
+        model: 'MiniMax-M2',
+        messages: [
+            { role: 'system', content: '你是萬能科技大學招生處的AI客服助理，請用繁體中文回答，回答要簡潔友善，專注於招生相關問題。' },
+            ...aiSessions[userId]
+        ]
+    });
+
+    return new Promise((resolve, reject) => {
+        const req = https.request({
+            hostname: 'api.minimax.chat',
+            path: '/v1/text/chatcompletion_v2',
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${process.env.MINIMAX_API_KEY}`,
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(body)
+            }
+        }, (res) => {
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => {
+                try {
+                    const json = JSON.parse(data);
+                    const reply = json.choices?.[0]?.message?.content || '抱歉，我暫時無法回答，請稍後再試。';
+                    aiSessions[userId].push({ role: 'assistant', content: reply });
+                    resolve(reply);
+                } catch (e) { resolve('抱歉，系統發生錯誤，請稍後再試。'); }
+            });
+        });
+        req.on('error', () => resolve('抱歉，系統發生錯誤，請稍後再試。'));
+        req.write(body);
+        req.end();
+    });
+}
+
+// 記錄哪些用戶正在使用 AI 客服模式
+const aiModeUsers = new Set();
 
 const app = express();
 const port = process.env.WEB_PORT || 8080;
@@ -100,6 +149,33 @@ function handleEvent(event) {
     }
 
     console.log(`處理指令: ${userText}`);
+
+    const userId = event.source.userId;
+
+    // AI 客服模式觸發
+    if (userText.match(/AI客服|ai客服|智能客服|AI諮詢/)) {
+        aiModeUsers.add(userId);
+        return client.replyMessage(event.replyToken, {
+            type: 'text',
+            text: '您好！AI 客服已啟動 🤖\n請直接輸入您的問題，我會盡力為您解答。\n輸入「結束」可離開 AI 客服模式。'
+        }).catch(handleError);
+    }
+
+    // 離開 AI 客服模式
+    if (userText === '結束' && aiModeUsers.has(userId)) {
+        aiModeUsers.delete(userId);
+        delete aiSessions[userId];
+        return client.replyMessage(event.replyToken, {
+            type: 'text', text: '已離開 AI 客服模式，感謝您的使用！'
+        }).catch(handleError);
+    }
+
+    // 如果在 AI 客服模式，轉交 AI 處理
+    if (aiModeUsers.has(userId) && event.type === 'message') {
+        return askMiniMax(userId, userText).then(reply =>
+            client.replyMessage(event.replyToken, { type: 'text', text: reply })
+        ).catch(handleError);
+    }
 
     // A. 諮詢關鍵字 (升級為具設計感的 Flex Message)
     if (userText.match(/諮詢|咨询|我要諮詢|專人|電話|問問/) || userText.includes('consult')) {
