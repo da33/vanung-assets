@@ -4,7 +4,7 @@ const line = require('@line/bot-sdk');
 require('dotenv').config();
 
 const app = express();
-const port = process.env.PORT || process.env.WEB_PORT || 8080;
+const port = parseInt(process.env.PORT || process.env.WEB_PORT || '8080', 10);
 
 // LINE Bot 設定
 const config = {
