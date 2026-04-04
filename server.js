@@ -66,7 +66,8 @@ async function askMiniMax(userId, userMessage) {
             res.on('end', () => {
                 try {
                     const json = JSON.parse(data);
-                    const reply = json.choices?.[0]?.message?.content || '抱歉，我暫時無法回答，請稍後再試。';
+                    const raw = json.choices?.[0]?.message?.content || '抱歉，我暫時無法回答，請稍後再試。';
+                    const reply = raw.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
                     aiSessions[userId].push({ role: 'assistant', content: reply });
                     resolve(reply);
                 } catch (e) { resolve('抱歉，系統發生錯誤，請稍後再試。'); }
