@@ -1,10 +1,165 @@
 const express = require('express');
 const path = require('path');
 const line = require('@line/bot-sdk');
+const https = require('https');
 require('dotenv').config();
 
+// AI 客服對話記錄（記憶體暫存）
+const aiSessions = {};
+
+async function askMiniMax(userId, userMessage) {
+    if (!aiSessions[userId]) aiSessions[userId] = [];
+    aiSessions[userId].push({ role: 'user', content: userMessage });
+    // 只保留最近 10 則
+    if (aiSessions[userId].length > 10) aiSessions[userId] = aiSessions[userId].slice(-10);
+
+    const body = JSON.stringify({
+        model: 'MiniMax-M2',
+        messages: [
+            { role: 'system', content: `你是萬能科技大學招生處的AI客服助理。
+【重要規則】必須使用繁體中文回答，禁止使用簡體中文。回答要簡潔友善。
+
+【學校基本資訊】
+- 校名：萬能科技大學（全國唯一航空城大學）
+- 地址：320676 桃園市中壢區萬能路1號
+- 總機：03-4515811
+- 招生分機：#21500、#20700
+- 官網：www.vnu.edu.tw
+- 招生報名系統：administration.vnu.edu.tw/ac/3151
+
+【學院與系所】
+航空暨工程學院：
+- 航空光機電系
+- 航空暨運輸服務管理系（航服系）
+- 車輛工程系
+- 電機工程系
+- 精密機械與工業工程系暨工業工程研究所
+- 室內設計與營建科技系暨研究所
+- 資訊工程系暨研究所
+- 電資研究所
+
+觀光餐旅暨管理學院：
+- 觀光與休閒事業管理系
+- 餐飲管理系
+- 旅館管理系
+- 航空暨運輸服務管理系
+- 企業管理系暨研究所
+- 資訊管理系暨研究所
+- 行銷與流通管理系暨智慧商務研究所
+
+設計學院：
+- 商業設計系
+- 化妝品應用與管理系暨研究所
+- 時尚造型設計暨表演藝術系
+
+【學制】
+- 四技日間部
+- 四技進修部（夜間）
+- 二技進修部
+- 研究所（碩士班甄試、碩士班考試、碩士在職專班）
+- 境外生（海外、大陸地區）
+
+【日間部入學管道】
+- 技職繁星：高職應屆畢業生，依在校成績推薦
+- 申請入學：統測後第一階段篩選，第二階段備審+面試
+- 甄選入學：技優生、特殊才能
+- 登記分發：統測成績登記
+- 運動績優：重點運動項目績優學生
+- 日間單招：本校獨立辦理
+- 身障生甄試：身心障礙學生專屬管道
+- 產學攜手專班：與企業合作，邊讀邊工作
+
+【進修部入學管道】
+- 四技申請入學
+- 二技申請入學
+- 四技產學攜手專班
+- 轉學考（寒假、暑假）
+
+【研究所入學管道】
+- 碩士班甄試（每年11-12月報名）
+- 碩士班考試（每年3-5月報名）
+- 碩士在職專班
+
+【115學年度重要日程】
+- 申請入學第一階段篩選結果：2026/03/31 公告
+- 研究所碩士班考試報名：2026/03/23～2026/05/14
+- 研究所碩士在職專班：展延報名中
+- 運動績優單招：2026/02/23 開放報名
+
+【獎學金】
+- 政府補助：每年約35,000元
+- 萬能加碼獎學金：最高50,000元
+- 新生入學獎助學金
+- 敦品勵學獎助學金
+- 證照獎金：依等級累加
+
+【學校特色】
+- 全國唯一航空城大學（桃園航空城核心）
+- 航服系海外實習：新加坡樟宜機場
+- 技能競賽：全國私科大第一
+- 電競隊：2024年大專盃《傳說對決》冠軍
+- 亞洲技能競賽金牌（漆作裝潢職類）
+
+如不確定的問題，請建議用戶撥打招生專線 03-4515811（#21500 或 #20700）。` },
+            ...aiSessions[userId]
+        ]
+    });
+
+    return new Promise((resolve, reject) => {
+        const req = https.request({
+            hostname: 'api.minimax.chat',
+            path: '/v1/text/chatcompletion_v2',
+            method: 'POST',
+            timeout: 10000, // 增加 10 秒超時限制
+            headers: {
+                'Authorization': `Bearer ${process.env.MINIMAX_API_KEY}`,
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(body)
+            }
+        }, (res) => {
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => {
+                try {
+                    const json = JSON.parse(data);
+                    
+                    // 處理 API 過載 (529) 或其他 API 錯誤
+                    if (res.statusCode === 529 || json.error) {
+                        console.error('AI API 報錯:', json.error || 'Server Overloaded');
+                        resolve('抱歉，目前 AI 客服諮詢人數較多，請稍後再試，或直接撥打招生專線 03-4515811。');
+                        return;
+                    }
+
+                    const raw = json.choices?.[0]?.message?.content || '抱歉，我暫時無法回答，請稍後再試。';
+                    const reply = raw.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+                    aiSessions[userId].push({ role: 'assistant', content: reply });
+                    resolve(reply);
+                } catch (e) { 
+                    console.error('解析 AI 回應失敗:', e);
+                    resolve('抱歉，系統正在維護中，請稍後再試。'); 
+                }
+            });
+        });
+
+        req.on('timeout', () => {
+            req.destroy();
+            resolve('AI 回應逾時，請再試一次。');
+        });
+
+        req.on('error', (e) => {
+            console.error('API 請求連線錯誤:', e);
+             resolve('連線不穩定，請稍後再試。');
+        });
+        req.write(body);
+        req.end();
+    });
+}
+
+// 記錄哪些用戶正在使用 AI 客服模式
+const aiModeUsers = new Set();
+
 const app = express();
-const port = process.env.PORT || 8080;
+const port = process.env.WEB_PORT || 8080;
 
 // LINE Bot 設定
 const config = {
@@ -100,6 +255,33 @@ function handleEvent(event) {
     }
 
     console.log(`處理指令: ${userText}`);
+
+    const userId = event.source.userId;
+
+    // AI 客服模式觸發
+    if (userText.match(/AI客服|ai客服|智能客服|AI諮詢/)) {
+        aiModeUsers.add(userId);
+        return client.replyMessage(event.replyToken, {
+            type: 'text',
+            text: '您好！AI 客服已啟動 🤖\n請直接輸入您的問題，我會盡力為您解答。\n輸入「結束」可離開 AI 客服模式。'
+        }).catch(handleError);
+    }
+
+    // 離開 AI 客服模式
+    if (userText === '結束' && aiModeUsers.has(userId)) {
+        aiModeUsers.delete(userId);
+        delete aiSessions[userId];
+        return client.replyMessage(event.replyToken, {
+            type: 'text', text: '已離開 AI 客服模式，感謝您的使用！'
+        }).catch(handleError);
+    }
+
+    // 如果在 AI 客服模式，轉交 AI 處理
+    if (aiModeUsers.has(userId) && event.type === 'message') {
+        return askMiniMax(userId, userText).then(reply =>
+            client.replyMessage(event.replyToken, { type: 'text', text: reply })
+        ).catch(handleError);
+    }
 
     // A. 諮詢關鍵字 (升級為具設計感的 Flex Message)
     if (userText.match(/諮詢|咨询|我要諮詢|專人|電話|問問/) || userText.includes('consult')) {
@@ -215,7 +397,38 @@ function handleEvent(event) {
         }).catch(handleError);
     }
 
-    // E. 預設回覆
+    // E. 入學管道
+    if (userText.match(/入學|管道|招生方式/)) {
+        return client.replyMessage(event.replyToken, {
+            type: 'flex',
+            altText: '萬能科技大學 - 入學管道',
+            contents: {
+                type: 'bubble',
+                hero: { type: 'image', url: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1000', size: 'full', aspectRatio: '20:13', aspectMode: 'cover' },
+                body: {
+                    type: 'box', layout: 'vertical', contents: [
+                        { type: 'text', text: '多元入學管道', weight: 'bold', size: 'xl' },
+                        { type: 'text', text: '選擇最適合你的升學方式', size: 'sm', color: '#999999', margin: 'md' },
+                        { type: 'separator', margin: 'lg' },
+                        { type: 'box', layout: 'vertical', margin: 'lg', spacing: 'md', contents: [
+                            { type: 'text', text: '📝 個人申請', size: 'md', weight: 'bold' },
+                            { type: 'text', text: '📊 繁星推薦', size: 'md', weight: 'bold' },
+                            { type: 'text', text: '🎯 技優甄審', size: 'md', weight: 'bold' },
+                            { type: 'text', text: '📚 統測分發', size: 'md', weight: 'bold' },
+                            { type: 'text', text: '🌟 獨立招生', size: 'md', weight: 'bold' }
+                        ]}
+                    ]
+                },
+                footer: {
+                    type: 'box', layout: 'vertical', contents: [
+                        { type: 'button', style: 'primary', color: '#00B2FF', action: { type: 'uri', label: '查看詳細說明', uri: 'https://administration.vnu.edu.tw/ac/2433' } }
+                    ]
+                }
+            }
+        }).catch(handleError);
+    }
+
+    // F. 預設回覆
     return client.replyMessage(event.replyToken, {
         type: 'text',
         text: `您好！歡迎瀏覽萬能招生處。我可以為您提供簡章、獎學金以及系所資訊。請點擊選單或輸入關鍵字與我互動！`
@@ -270,4 +483,5 @@ function handleError(err) {
 // 靜態檔案路徑必須放在後端 Webhook 路由之後
 app.use(express.static(__dirname));
 app.get('*', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); });
+
 app.listen(port, () => { console.log(`🚀 萬能招生 Bot 已啟動於 Port: ${port}`); });

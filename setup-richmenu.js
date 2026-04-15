@@ -21,7 +21,7 @@ const richMenu = {
         },
         {
             bounds: { x: 1667, y: 0, width: 833, height: 843 },
-            action: { type: "postback", data: "諮詢", displayText: "💬 真人客服" }
+            action: { type: "postback", data: "AI客服", displayText: "🤖 AI客服" }
         },
         {
             bounds: { x: 0, y: 843, width: 833, height: 843 },
@@ -43,10 +43,6 @@ async function setup() {
         console.log('🚀 建立 Rich Menu...');
         const richMenuId = await client.createRichMenu(richMenu);
         console.log(`✅ Rich Menu 已建立: ${richMenuId}`);
-
-        console.log('\n🔗 連結到 Bot...');
-        await client.linkRichMenuToUser('@tlp8240j', richMenuId);
-        console.log('✅ 已連結到 Bot');
 
         console.log('\n📝 設為預設選單...');
         await client.setDefaultRichMenu(richMenuId);

@@ -110,6 +110,7 @@ async function askMiniMax(userId, userMessage) {
             hostname: 'api.minimax.chat',
             path: '/v1/text/chatcompletion_v2',
             method: 'POST',
+            timeout: 10000, // 增加 10 秒超時限制
             headers: {
                 'Authorization': `Bearer ${process.env.MINIMAX_API_KEY}`,
                 'Content-Type': 'application/json',
@@ -121,14 +122,34 @@ async function askMiniMax(userId, userMessage) {
             res.on('end', () => {
                 try {
                     const json = JSON.parse(data);
+                    
+                    // 處理 API 過載 (529) 或其他 API 錯誤
+                    if (res.statusCode === 529 || json.error) {
+                        console.error('AI API 報錯:', json.error || 'Server Overloaded');
+                        resolve('抱歉，目前 AI 客服諮詢人數較多，請稍後再試，或直接撥打招生專線 03-4515811。');
+                        return;
+                    }
+
                     const raw = json.choices?.[0]?.message?.content || '抱歉，我暫時無法回答，請稍後再試。';
                     const reply = raw.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
                     aiSessions[userId].push({ role: 'assistant', content: reply });
                     resolve(reply);
-                } catch (e) { resolve('抱歉，系統發生錯誤，請稍後再試。'); }
+                } catch (e) { 
+                    console.error('解析 AI 回應失敗:', e);
+                    resolve('抱歉，系統正在維護中，請稍後再試。'); 
+                }
             });
         });
-        req.on('error', () => resolve('抱歉，系統發生錯誤，請稍後再試。'));
+
+        req.on('timeout', () => {
+            req.destroy();
+            resolve('AI 回應逾時，請再試一次。');
+        });
+
+        req.on('error', (e) => {
+            console.error('API 請求連線錯誤:', e);
+             resolve('連線不穩定，請稍後再試。');
+        });
         req.write(body);
         req.end();
     });
@@ -458,5 +479,9 @@ function handleError(err) {
         console.error(err);
     }
 }
+
+// 靜態檔案路徑必須放在後端 Webhook 路由之後
+app.use(express.static(__dirname));
+app.get('*', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); });
 
 app.listen(port, () => { console.log(`🚀 萬能招生 Bot 已啟動於 Port: ${port}`); });
