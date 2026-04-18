@@ -246,17 +246,37 @@ function handleEvent(event) {
     if (event.type === 'message' && event.message.type === 'text') {
         userText = event.message.text.trim();
     } else if (event.type === 'postback') {
-        // 如果選單是發送 postback data，我們將其視為指令
         userText = event.postback.data.trim();
         console.log(`收到 Postback 資料: ${userText}`);
     } else {
-        // 其他不處理的事件
         return Promise.resolve(null);
     }
 
-    console.log(`處理指令: ${userText}`);
-
     const userId = event.source.userId;
+
+    // --- 【核心功能】真人接手自動關閉 AI ---
+    // 監測是否為管理員在後台回覆。
+    // 1. 手動關鍵字關閉
+    if (userText.match(/#真人|#接手|#關閉AI|真人服務/)) {
+        aiModeUsers.delete(userId);
+        delete aiSessions[userId];
+        return client.replyMessage(event.replyToken, {
+            type: 'text', text: '✅ 真人專員已接手，AI 客服已自動關閉。'
+        }).catch(handleError);
+    }
+
+    // 2. 靜默偵測：如果偵測到訊息是由管理員發出的 (在某些 Webhook 設定下會帶有管理員資訊)
+    // 或者是只要管理員在後台輸入了任何內容且該內容不是特定的 AI 指令
+    if (aiModeUsers.has(userId)) {
+         // 如果收到的是特殊的前綴(例如管理員習慣用的符號)，可以自動關閉
+         if (userText.startsWith('>>') || userText.startsWith('回覆:')) {
+            aiModeUsers.delete(userId);
+            return Promise.resolve(null); 
+         }
+    }
+    // ------------------------------------
+
+    console.log(`處理指令: ${userText}`);
 
     // AI 客服模式觸發
     if (userText.match(/AI客服|ai客服|智能客服|AI諮詢/)) {
