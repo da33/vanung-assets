@@ -17,7 +17,7 @@ async function askMiniMax(userId, userMessage) {
         model: 'MiniMax-M2',
         messages: [
             { role: 'system', content: `你是萬能科技大學招生處的AI客服助理。
-【重要規則】必須使用繁體中文回答，禁止使用簡體中文。回答要簡潔友善。
+【重要規則】必須使用繁體中文回答，禁止使用簡體中文。回答要簡潔友善，若用戶詢問特定入學管道，請主動提供招生專區的查詢網址。
 
 【學校基本資訊】
 - 校名：萬能科技大學（全國唯一航空城大學）
@@ -25,60 +25,26 @@ async function askMiniMax(userId, userMessage) {
 - 總機：03-4515811
 - 招生分機：#21500、#20700
 - 官網：www.vnu.edu.tw
-- 招生報名系統：administration.vnu.edu.tw/ac/3151
+- 教務處招生專區：www.exams.vnu.edu.tw （所有最新簡章與公告皆可在此查詢）
+
+【🔥 最新重要活動】
+- 早鳥預約報名系統：https://administration.vnu.edu.tw/ac/3151 （請鼓勵有興趣的同學優先填表預約）
 
 【學院與系所】
-航空暨工程學院：
-- 航空光機電系
-- 航空暨運輸服務管理系（航服系）
-- 車輛工程系
-- 電機工程系
-- 精密機械與工業工程系暨工業工程研究所
-- 室內設計與營建科技系暨研究所
-- 資訊工程系暨研究所
-- 電資研究所
+航空暨工程學院：航空光機電系、航服系、車輛工程系、電機工程系、精密機械與工業工程系(含所)、室內設計與營建科技系(含所)、資訊工程系(含所)、電資研究所。
+觀光餐旅暨管理學院：觀光休閒系、餐飲管理系、旅館管理系、企業管理系(含所)、資訊管理系(含所)、行銷與流通管理系暨智慧商務研究所。
+設計學院：商業設計系、化妝品應用與管理系(含所)、時尚造型設計暨表演藝術系。
 
-觀光餐旅暨管理學院：
-- 觀光與休閒事業管理系
-- 餐飲管理系
-- 旅館管理系
-- 航空暨運輸服務管理系
-- 企業管理系暨研究所
-- 資訊管理系暨研究所
-- 行銷與流通管理系暨智慧商務研究所
+【學制與入學管道一覽】
+1. 四技日間部（高中職畢業適用）：
+   - 管道：技職繁星、申請入學、甄選入學、登記分發、運動績優、日間單招、身障生甄試與單招。
+2. 四技與二技進修部（適合邊讀邊工作）：
+   - 管道：申請入學、產學攜手專班、產學訓專班。
+3. 轉學考：提供寒假轉學與暑假轉學機制。
+4. 研究所：碩士班甄試（11-12月）、碩士班考試（3-5月）、碩士在職專班。
+5. 境外生：海外僑生專班（含產攜僑生專班）、大陸地區招生專區（陸生轉學、學士班）。
 
-設計學院：
-- 商業設計系
-- 化妝品應用與管理系暨研究所
-- 時尚造型設計暨表演藝術系
-
-【學制】
-- 四技日間部
-- 四技進修部（夜間）
-- 二技進修部
-- 研究所（碩士班甄試、碩士班考試、碩士在職專班）
-- 境外生（海外、大陸地區）
-
-【日間部入學管道】
-- 技職繁星：高職應屆畢業生，依在校成績推薦
-- 申請入學：統測後第一階段篩選，第二階段備審+面試
-- 甄選入學：技優生、特殊才能
-- 登記分發：統測成績登記
-- 運動績優：重點運動項目績優學生
-- 日間單招：本校獨立辦理
-- 身障生甄試：身心障礙學生專屬管道
-- 產學攜手專班：與企業合作，邊讀邊工作
-
-【進修部入學管道】
-- 四技申請入學
-- 二技申請入學
-- 四技產學攜手專班
-- 轉學考（寒假、暑假）
-
-【研究所入學管道】
-- 碩士班甄試（每年11-12月報名）
-- 碩士班考試（每年3-5月報名）
-- 碩士在職專班
+※ 若用戶想了解任一入學管道的「簡章、名額、重要日程」，請引導至招生專區：www.exams.vnu.edu.tw
 
 【115學年度重要日程】
 - 申請入學第一階段篩選結果：2026/03/31 公告
@@ -86,21 +52,20 @@ async function askMiniMax(userId, userMessage) {
 - 研究所碩士在職專班：展延報名中
 - 運動績優單招：2026/02/23 開放報名
 
-【獎學金】
-- 政府補助：每年約35,000元
-- 萬能加碼獎學金：最高50,000元
-- 新生入學獎助學金
-- 敦品勵學獎助學金
-- 證照獎金：依等級累加
+【學雜費與獎助學金方案】
+- 學雜費收費標準：各學院實際收費依當學年度公告為準。但搭配政府與學校專案，就學負擔極低。
+- 政府學費補助：私立大專學生政府每年固定補助 35,000 元。
+- 萬能加碼獎助：新生另享最高 50,000 元加碼獎學金（含新生入學、敦品勵學獎助學金）。
+- 特殊身分減免：若符合低收入戶、身心障礙等特殊身分，可依規定申請學雜費大幅減免。
+- 證照獎金：依所考取之證照等級累加發放。
+（各項學費減免與獎學金詳細辦法，請優先至早鳥預約與獎助學金系統查詢：https://administration.vnu.edu.tw/ac/3151）
 
-【學校特色】
-- 全國唯一航空城大學（桃園航空城核心）
-- 航服系海外實習：新加坡樟宜機場
-- 技能競賽：全國私科大第一
-- 電競隊：2024年大專盃《傳說對決》冠軍
-- 亞洲技能競賽金牌（漆作裝潢職類）
+【特色與優勢】
+- 航空城唯一實戰大學。
+- 擁有新加坡樟宜機場海外實習機會（航服系）。
+- 全國私科大技能競賽第一，並曾奪得亞洲技能競賽金牌與大專盃電競冠軍。
 
-如不確定的問題，請建議用戶撥打招生專線 03-4515811（#21500 或 #20700）。` },
+若問題過於複雜或不確定，請委婉建議用戶撥打招生專線 03-4515811（#21500 或 #20700），或是提示後續將由真人專員為您解答。` },
             ...aiSessions[userId]
         ]
     });
@@ -337,7 +302,7 @@ function handleEvent(event) {
                             type: 'box', layout: 'vertical', margin: 'lg', spacing: 'sm', contents: [
                                 { type: 'button', style: 'primary', color: '#00B2FF', height: 'sm', action: { type: 'uri', label: '📞 直接撥打諮詢專線', uri: `tel:${telNo}` } },
                                 { type: 'button', style: 'secondary', height: 'sm', action: { type: 'uri', label: '💬 LINE 免費通話', uri: `https://line.me/R/call/8/${telNo}` } },
-                                { type: 'button', style: 'link', height: 'sm', action: { type: 'uri', label: '📍 開啟地圖導航', uri: 'https://www.google.com/maps?q=%E8%90%AC%E8%83%BD%E7%A7%91%E6%8A%80%E5%A4%A7%E5%AD%B8%E6%8B%9B%E7%94%9F%E8%99%95' } }
+                                { type: 'button', style: 'link', height: 'sm', action: { type: 'uri', label: '🧑‍💼 專員一對一對談', uri: 'https://line.me/ti/p/SuYhIZtjnm' } }
                             ]
                         }
                     ]
@@ -372,8 +337,8 @@ function handleEvent(event) {
                 },
                 footer: {
                     type: 'box', layout: 'vertical', spacing: 'sm', contents: [
-                        { type: 'button', style: 'primary', color: '#00B2FF', action: { type: 'uri', label: '立即下載電子簡章', uri: 'https://administration.vnu.edu.tw/ac/2433' } },
-                        { type: 'button', style: 'secondary', action: { type: 'uri', label: '線上填寫報名表', uri: 'https://administration.vnu.edu.tw/ac/2433' } }
+                        { type: 'button', style: 'primary', color: '#00B2FF', action: { type: 'uri', label: '立即下載電子簡章', uri: 'https://www.vnu.edu.tw/joinus' } },
+                        { type: 'button', style: 'secondary', action: { type: 'uri', label: '線上填寫報名表', uri: 'https://administration.vnu.edu.tw/ac/3151' } }
                     ]
                 }
             }
@@ -404,7 +369,7 @@ function handleEvent(event) {
                 },
                 footer: {
                     type: 'box', layout: 'vertical', contents: [
-                        { type: 'button', style: 'link', height: 'sm', action: { type: 'uri', label: '查看詳細對照表', uri: 'https://administration.vnu.edu.tw/ac/2433' } }
+                        { type: 'button', style: 'link', height: 'sm', action: { type: 'uri', label: '查看詳細對照表', uri: 'https://administration.vnu.edu.tw/ac/3151' } }
                     ]
                 }
             }
@@ -419,10 +384,10 @@ function handleEvent(event) {
             contents: {
                 type: 'carousel',
                 contents: [
-                    createCollegeBubble('航空學院', '全國唯一航空特色學院', 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=500', '設有機電、航維、應外等專業特色系所。'),
-                    createCollegeBubble('觀光餐旅學院', '職場對接．星級實作', 'https://images.unsplash.com/photo-1537047902294-62a40c20a6ae?q=80&w=500', '榮獲多項餐飲金牌，業界實習機會最豐富。'),
-                    createCollegeBubble('設計學院', '創意無限．美學實踐', 'https://images.unsplash.com/photo-1558655146-d09347e92766?q=80&w=500', '室設、商設、化妝品應用，培育設計頂尖人才。'),
-                    createCollegeBubble('資訊工程學院', 'AI 引領．數位轉型', 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=500', '資工、資管，對接智慧產業，就業即刻起航。')
+                    createCollegeBubble('航空學院', '全國唯一航空特色學院', 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=500', '設有機電、航維、應外等專業特色系所。', 'http://www.cae.vnu.edu.tw/'),
+                    createCollegeBubble('觀光餐旅學院', '職場對接．星級實作', 'https://images.unsplash.com/photo-1537047902294-62a40c20a6ae?q=80&w=500', '榮獲多項餐飲金牌，業界實習機會最豐富。', 'http://www.cth.vnu.edu.tw/'),
+                    createCollegeBubble('設計學院', '創意無限．美學實踐', 'https://images.unsplash.com/photo-1558655146-d09347e92766?q=80&w=500', '室設、商設、化妝品應用，培育設計頂尖人才。', 'http://www.dc.vnu.edu.tw/'),
+                    createCollegeBubble('資訊工程學院', 'AI 引領．數位轉型', 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=500', '資工、資管，對接智慧產業，就業即刻起航。', 'http://www.csie.vnu.edu.tw/')
                 ]
             }
         }).catch(handleError);
@@ -452,7 +417,7 @@ function handleEvent(event) {
                 },
                 footer: {
                     type: 'box', layout: 'vertical', contents: [
-                        { type: 'button', style: 'primary', color: '#00B2FF', action: { type: 'uri', label: '查看詳細說明', uri: 'https://administration.vnu.edu.tw/ac/2433' } }
+                        { type: 'button', style: 'primary', color: '#00B2FF', action: { type: 'uri', label: '查看詳細說明', uri: 'https://www.vnu.edu.tw/joinus' } }
                     ]
                 }
             }
@@ -467,7 +432,7 @@ function handleEvent(event) {
 }
 
 // 輔助函式：建立學院輪播卡片
-function createCollegeBubble(title, subtitle, imageUrl, desc) {
+function createCollegeBubble(title, subtitle, imageUrl, desc, linkUrl) {
     return {
         type: 'bubble', size: 'micro',
         hero: { type: 'image', url: imageUrl, size: 'full', aspectRatio: '20:13', aspectMode: 'cover' },
@@ -480,7 +445,7 @@ function createCollegeBubble(title, subtitle, imageUrl, desc) {
         },
         footer: {
             type: 'box', layout: 'vertical', contents: [
-                { type: 'button', style: 'link', height: 'sm', action: { type: 'uri', label: '進入系所', uri: 'https://www.vnu.edu.tw' } }
+                { type: 'button', style: 'link', height: 'sm', action: { type: 'uri', label: '進入系所', uri: linkUrl || 'https://www.vnu.edu.tw' } }
             ]
         }
     };
