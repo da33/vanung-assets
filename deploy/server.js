@@ -155,8 +155,9 @@ async function askMiniMax(userId, userMessage) {
     });
 }
 
-// 記錄哪些用戶正在使用 AI 客服模式
-const aiModeUsers = new Set();
+// 記錄哪些用戶正在使用 AI 客服模式，使用 Map 記錄最後互動時間
+const aiModeUsers = new Map();
+const AI_TIMEOUT_MS = 30 * 60 * 1000; // 30 分鐘無互動自動關閉 AI
 
 const app = express();
 const port = process.env.WEB_PORT || 8080;
@@ -254,6 +255,15 @@ function handleEvent(event) {
 
     const userId = event.source.userId;
 
+    // --- 【超時機制】檢查 AI 模式是否過期 ---
+    if (aiModeUsers.has(userId)) {
+        const lastActive = aiModeUsers.get(userId);
+        if (Date.now() - lastActive > AI_TIMEOUT_MS) {
+            aiModeUsers.delete(userId);
+            delete aiSessions[userId];
+        }
+    }
+
     // --- 【核心功能】真人接手自動關閉 AI ---
     // 監測是否為管理員在後台回覆。
     // 1. 手動關鍵字關閉
@@ -280,10 +290,10 @@ function handleEvent(event) {
 
     // AI 客服模式觸發
     if (userText.match(/AI客服|ai客服|智能客服|AI諮詢/)) {
-        aiModeUsers.add(userId);
+        aiModeUsers.set(userId, Date.now());
         return client.replyMessage(event.replyToken, {
             type: 'text',
-            text: '您好！AI 客服已啟動 🤖\n請直接輸入您的問題，我會盡力為您解答。\n輸入「結束」可離開 AI 客服模式。'
+            text: '您好！AI 助理已連線 🤖\n請直接輸入您的問題。\n\n⚠️ 如果您需要真人專員協助，請隨時輸入「#真人」或「結束」。'
         }).catch(handleError);
     }
 
@@ -292,12 +302,13 @@ function handleEvent(event) {
         aiModeUsers.delete(userId);
         delete aiSessions[userId];
         return client.replyMessage(event.replyToken, {
-            type: 'text', text: '已離開 AI 客服模式，感謝您的使用！'
+            type: 'text', text: '✅ 已離開 AI 客服系統。後續若需諮詢可再次點擊選單，或等候專員為您服務！'
         }).catch(handleError);
     }
 
     // 如果在 AI 客服模式，轉交 AI 處理
     if (aiModeUsers.has(userId) && event.type === 'message') {
+        aiModeUsers.set(userId, Date.now()); // 更新最後活動時間
         return askMiniMax(userId, userText).then(reply =>
             client.replyMessage(event.replyToken, { type: 'text', text: reply })
         ).catch(handleError);
