@@ -4,6 +4,11 @@ const line = require('@line/bot-sdk');
 const https = require('https');
 require('dotenv').config();
 
+// ===== AI 客服總開關 =====
+// false = 停用 LINE@ AI 客服（改由真人專員服務）
+// true  = 重新啟用 AI 客服
+const AI_ENABLED = false;
+
 // AI 客服對話記錄（記憶體暫存）
 const aiSessions = {};
 
@@ -133,6 +138,10 @@ const AI_TIMEOUT_MS = 30 * 60 * 1000; // 30 分鐘無互動自動關閉 AI
 const app = express();
 const port = process.env.WEB_PORT || 8080;
 
+// gzip 壓縮（HTML 58KB → 約 12KB）
+const compression = require('compression');
+app.use(compression());
+
 // LINE Bot 設定
 const config = {
     channelAccessToken: (process.env.LINE_CHANNEL_ACCESS_TOKEN || '').trim(),
@@ -261,6 +270,13 @@ function handleEvent(event) {
 
     // AI 客服模式觸發
     if (userText.match(/AI客服|ai客服|智能客服|AI諮詢/)) {
+        // AI 已停用：改導向真人專員
+        if (!AI_ENABLED) {
+            return client.replyMessage(event.replyToken, {
+                type: 'text',
+                text: '🤖 AI 客服目前暫停服務中。\n\n如需協助，歡迎輸入「諮詢」由真人專員為您服務，或直接撥打招生專線 03-4515811（分機 #21500 / #20700）。'
+            }).catch(handleError);
+        }
         aiModeUsers.set(userId, Date.now());
         return client.replyMessage(event.replyToken, {
             type: 'text',
@@ -278,7 +294,7 @@ function handleEvent(event) {
     }
 
     // 如果在 AI 客服模式，轉交 AI 處理
-    if (aiModeUsers.has(userId) && event.type === 'message') {
+    if (AI_ENABLED && aiModeUsers.has(userId) && event.type === 'message') {
         aiModeUsers.set(userId, Date.now()); // 更新最後活動時間
         return askMiniMax(userId, userText).then(reply =>
             client.replyMessage(event.replyToken, { type: 'text', text: reply })
