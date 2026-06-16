@@ -136,7 +136,8 @@ const aiModeUsers = new Map();
 const AI_TIMEOUT_MS = 30 * 60 * 1000; // 30 分鐘無互動自動關閉 AI
 
 const app = express();
-const port = process.env.WEB_PORT || 8080;
+// Zeabur 等平台會注入 PORT；優先讀 PORT，保留 WEB_PORT 當本機後備
+const port = process.env.PORT || process.env.WEB_PORT || 8080;
 
 // gzip 壓縮（HTML 58KB → 約 12KB）
 const compression = require('compression');
