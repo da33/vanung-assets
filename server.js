@@ -360,7 +360,7 @@ function handleEvent(event) {
                 },
                 footer: {
                     type: 'box', layout: 'vertical', spacing: 'sm', contents: [
-                        { type: 'button', style: 'primary', color: '#00B2FF', action: { type: 'uri', label: '立即下載電子簡章', uri: 'https://www.vnu.edu.tw/joinus' } },
+                        { type: 'button', style: 'primary', color: '#00B2FF', action: { type: 'uri', label: '立即下載電子簡章', uri: 'https://www.exams.vnu.edu.tw' } },
                         { type: 'button', style: 'secondary', action: { type: 'uri', label: '線上填寫報名表', uri: 'https://administration.vnu.edu.tw/ac/3151' } }
                     ]
                 }
@@ -378,21 +378,20 @@ function handleEvent(event) {
                 header: {
                     type: 'box', layout: 'vertical', contents: [
                         { type: 'text', text: 'SCHOLARSHIP', weight: 'bold', color: '#00F0FF', size: 'sm' },
-                        { type: 'text', text: '獎學金全面加碼', weight: 'bold', size: 'xl', color: '#FFFFFF' }
+                        { type: 'text', text: '獎助學金資訊', weight: 'bold', size: 'xl', color: '#FFFFFF' }
                     ], backgroundColor: '#001A2C'
                 },
                 body: {
                     type: 'box', layout: 'vertical', contents: [
-                        { type: 'box', layout: 'horizontal', contents: [{ type: 'text', text: '政府補助', size: 'sm', color: '#555555', flex: 2 }, { type: 'text', text: '$35,000 / 年', size: 'sm', weight: 'bold', align: 'end', flex: 3 }] },
-                        { type: 'box', layout: 'horizontal', margin: 'md', contents: [{ type: 'text', text: '萬能加碼', size: 'sm', color: '#555555', flex: 2 }, { type: 'text', text: '最高 $50,000', size: 'sm', weight: 'bold', color: '#E02020', align: 'end', flex: 3 }] },
-                        { type: 'box', layout: 'horizontal', margin: 'md', contents: [{ type: 'text', text: '證照獎金', size: 'sm', color: '#555555', flex: 2 }, { type: 'text', text: '依等級累加', size: 'sm', weight: 'bold', align: 'end', flex: 3 }] },
+                        { type: 'text', text: '115 學年度敦品勵學獎助學金實施中', weight: 'bold', size: 'md', wrap: true },
+                        { type: 'text', text: '依入學管道與在學成績提供不同等級獎助學金。', size: 'sm', color: '#666666', wrap: true, margin: 'md' },
                         { type: 'separator', margin: 'lg' },
-                        { type: 'text', text: '* 詳情依當年度招生簡章為準', size: 'xxs', color: '#999999', margin: 'md', style: 'italic' }
+                        { type: 'text', text: '※ 完整金額、資格與申請期限,請以下方官方最新公告為準。', size: 'xxs', color: '#999999', margin: 'md', wrap: true }
                     ]
                 },
                 footer: {
                     type: 'box', layout: 'vertical', contents: [
-                        { type: 'button', style: 'link', height: 'sm', action: { type: 'uri', label: '查看詳細對照表', uri: 'https://administration.vnu.edu.tw/ac/3151' } }
+                        { type: 'button', style: 'primary', color: '#00B2FF', height: 'sm', action: { type: 'uri', label: '查看官方獎助學金公告', uri: 'https://administration.vnu.edu.tw/ac/3151' } }
                     ]
                 }
             }
@@ -403,14 +402,13 @@ function handleEvent(event) {
     if (userText.match(/系所|学院|學系/)) {
         return client.replyMessage(event.replyToken, {
             type: 'flex',
-            altText: '萬能科技大學 - 四大學院介紹',
+            altText: '萬能科技大學 - 三大學院介紹',
             contents: {
                 type: 'carousel',
                 contents: [
-                    createCollegeBubble('航空學院', '全國唯一航空特色學院', 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=500', '設有機電、航維、應外等專業特色系所。', 'http://www.cae.vnu.edu.tw/'),
-                    createCollegeBubble('觀光餐旅學院', '職場對接．星級實作', 'https://images.unsplash.com/photo-1537047902294-62a40c20a6ae?q=80&w=500', '榮獲多項餐飲金牌，業界實習機會最豐富。', 'http://www.cth.vnu.edu.tw/'),
-                    createCollegeBubble('設計學院', '創意無限．美學實踐', 'https://images.unsplash.com/photo-1558655146-d09347e92766?q=80&w=500', '室設、商設、化妝品應用，培育設計頂尖人才。', 'http://www.dc.vnu.edu.tw/'),
-                    createCollegeBubble('資訊工程學院', 'AI 引領．數位轉型', 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=500', '資工、資管，對接智慧產業，就業即刻起航。', 'http://www.csie.vnu.edu.tw/')
+                    createCollegeBubble('航空暨工程學院', '全國唯一航空特色學院', 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=500', '航空光機電、資訊工程、電機工程、車輛工程、精密機械與工業工程、室內設計與營建科技等系所。', 'http://www.cae.vnu.edu.tw/'),
+                    createCollegeBubble('觀光餐旅暨管理學院', '職場對接．星級實作', 'https://images.unsplash.com/photo-1537047902294-62a40c20a6ae?q=80&w=500', '觀光休閒、餐飲管理、旅館管理、航空暨運輸服務管理、企業管理、資訊管理、行銷與流通管理等系所。', 'http://www.cth.vnu.edu.tw/'),
+                    createCollegeBubble('設計學院', '創意無限．美學實踐', 'https://images.unsplash.com/photo-1558655146-d09347e92766?q=80&w=500', '商業設計、化妝品應用與管理、時尚造型設計暨表演藝術等系所。', 'http://www.dc.vnu.edu.tw/')
                 ]
             }
         }).catch(handleError);
@@ -430,17 +428,18 @@ function handleEvent(event) {
                         { type: 'text', text: '選擇最適合你的升學方式', size: 'sm', color: '#999999', margin: 'md' },
                         { type: 'separator', margin: 'lg' },
                         { type: 'box', layout: 'vertical', margin: 'lg', spacing: 'md', contents: [
-                            { type: 'text', text: '📝 個人申請', size: 'md', weight: 'bold' },
-                            { type: 'text', text: '📊 繁星推薦', size: 'md', weight: 'bold' },
-                            { type: 'text', text: '🎯 技優甄審', size: 'md', weight: 'bold' },
-                            { type: 'text', text: '📚 統測分發', size: 'md', weight: 'bold' },
-                            { type: 'text', text: '🌟 獨立招生', size: 'md', weight: 'bold' }
+                            { type: 'text', text: '📊 技職繁星', size: 'md', weight: 'bold' },
+                            { type: 'text', text: '📝 申請入學', size: 'md', weight: 'bold' },
+                            { type: 'text', text: '🎯 甄選入學', size: 'md', weight: 'bold' },
+                            { type: 'text', text: '📚 登記分發', size: 'md', weight: 'bold' },
+                            { type: 'text', text: '🏅 運動績優', size: 'md', weight: 'bold' },
+                            { type: 'text', text: '🌟 日間單獨招生', size: 'md', weight: 'bold' }
                         ]}
                     ]
                 },
                 footer: {
                     type: 'box', layout: 'vertical', contents: [
-                        { type: 'button', style: 'primary', color: '#00B2FF', action: { type: 'uri', label: '查看詳細說明', uri: 'https://www.vnu.edu.tw/joinus' } }
+                        { type: 'button', style: 'primary', color: '#00B2FF', action: { type: 'uri', label: '查看詳細說明', uri: 'https://www.exams.vnu.edu.tw' } }
                     ]
                 }
             }
@@ -450,7 +449,7 @@ function handleEvent(event) {
     // F. 預設回覆
     return client.replyMessage(event.replyToken, {
         type: 'text',
-        text: `您好！歡迎瀏覽萬能招生處。我可以為您提供簡章、獎學金以及系所資訊。請點擊選單或輸入關鍵字與我互動！`
+        text: `請點選下方選單，或輸入「簡章／獎學金／系所／入學管道」查詢相關資訊 🙂\n需專人協助，請輸入「真人諮詢」。`
     }).catch(handleError);
 }
 
@@ -483,8 +482,8 @@ function sendWelcomeMessage(replyToken) {
             body: {
                 type: 'box', layout: 'vertical', contents: [
                     { type: 'text', text: '您好！歡迎加入萬能招生處', weight: 'bold', size: 'lg' },
-                    { type: 'text', text: '✨【115學年度 敦品勵學獎助學金】熱烈報名中！最高可獲 20,000元獎金+住宿免費等多項補助。', color: '#ff0000', weight: 'bold', size: 'sm', margin: 'sm', wrap: true },
-                    { type: 'text', text: '即日起至 115/06/30 前填表預約報名即可享有，請點擊下方選單了解詳情！', size: 'xs', color: '#666666', margin: 'md', wrap: true }
+                    { type: 'text', text: '✨ 115 學年度敦品勵學獎助學金實施中，多元入學管道熱烈招生！', color: '#ff0000', weight: 'bold', size: 'sm', margin: 'sm', wrap: true },
+                    { type: 'text', text: '完整獎助學金金額與申請期限，請點下方選單「獎學金」查看官方最新公告。', size: 'xs', color: '#666666', margin: 'md', wrap: true }
                 ]
             }
         }
