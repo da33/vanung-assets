@@ -113,7 +113,7 @@ const AI_TIMEOUT_MS = 30 * 60 * 1000; // 30 分鐘無互動自動關閉 AI
 
 // 未命中關鍵字時的「已通知專員」一次性提示；同一使用者冷卻期內只提示一次，之後靜默交給真人
 const notifiedUsers = new Map();
-const NOTIFY_COOLDOWN_MS = 60 * 60 * 1000; // 60 分鐘內同一人只提示一次
+const NOTIFY_COOLDOWN_MS = 10 * 60 * 1000; // 10 分鐘內同一人只提示一次
 
 const app = express();
 // Zeabur 等平台會注入 PORT；優先讀 PORT，保留 WEB_PORT 當本機後備
@@ -429,7 +429,7 @@ function handleEvent(event) {
 
     // F. 未命中選單關鍵字 → 一次性提示「已通知專員」，之後靜默交給真人
     // 本帳號為真人客服（聊天模式）。為避免對每則訊息都回覆而插話洗版，
-    // 同一使用者在冷卻期(60 分)內只回一次「已收到、專員會回覆」的提示，其餘訊息靜默交由專員處理。
+    // 同一使用者在冷卻期(10 分)內只回一次「已收到、專員會回覆」的提示，其餘訊息靜默交由專員處理。
     const lastNotified = notifiedUsers.get(userId) || 0;
     if (Date.now() - lastNotified > NOTIFY_COOLDOWN_MS) {
         notifiedUsers.set(userId, Date.now());
