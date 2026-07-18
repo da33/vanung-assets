@@ -111,6 +111,10 @@ async function askMiniMax(userId, userMessage) {
 const aiModeUsers = new Map();
 const AI_TIMEOUT_MS = 30 * 60 * 1000; // 30 分鐘無互動自動關閉 AI
 
+// 未命中關鍵字時的「已通知專員」一次性提示；同一使用者冷卻期內只提示一次，之後靜默交給真人
+const notifiedUsers = new Map();
+const NOTIFY_COOLDOWN_MS = 60 * 60 * 1000; // 60 分鐘內同一人只提示一次
+
 const app = express();
 // Zeabur 等平台會注入 PORT；優先讀 PORT，保留 WEB_PORT 當本機後備
 const port = process.env.PORT || process.env.WEB_PORT || 8080;
@@ -280,6 +284,7 @@ function handleEvent(event) {
 
     // A. 諮詢關鍵字 (升級為具設計感的 Flex Message)
     if (userText.match(/諮詢|咨询|我要諮詢|專人|電話|問問/) || userText.includes('consult')) {
+        notifiedUsers.set(userId, Date.now()); // 已提供真人聯絡方式，後續非關鍵字訊息靜默交給專員
         const telNo = '034515811';
         return client.replyMessage(event.replyToken, {
             type: 'flex',
@@ -422,11 +427,18 @@ function handleEvent(event) {
         }).catch(handleError);
     }
 
-    // F. 未命中選單關鍵字 → 不自動回覆
-    // 本帳號為真人客服（聊天模式，「此官方帳號由負責人員回覆訊息」）。
-    // 若對每則非關鍵字訊息都回預設句，會在專員與使用者對話時一直插話洗版。
-    // 故一律靜默，交由真人專員回覆；選單卡片與關鍵字查詢仍正常運作。
-    return Promise.resolve(null);
+    // F. 未命中選單關鍵字 → 一次性提示「已通知專員」，之後靜默交給真人
+    // 本帳號為真人客服（聊天模式）。為避免對每則訊息都回覆而插話洗版，
+    // 同一使用者在冷卻期(60 分)內只回一次「已收到、專員會回覆」的提示，其餘訊息靜默交由專員處理。
+    const lastNotified = notifiedUsers.get(userId) || 0;
+    if (Date.now() - lastNotified > NOTIFY_COOLDOWN_MS) {
+        notifiedUsers.set(userId, Date.now());
+        return client.replyMessage(event.replyToken, {
+            type: 'text',
+            text: '✅ 已收到您的訊息，稍候將由招生專員親自回覆您 🙋\n（想自行查詢，也可點下方選單）'
+        }).catch(handleError);
+    }
+    return Promise.resolve(null); // 冷卻期內不重複打擾，交給真人
 }
 
 // 輔助函式：建立學院輪播卡片
