@@ -422,11 +422,11 @@ function handleEvent(event) {
         }).catch(handleError);
     }
 
-    // F. 預設回覆
-    return client.replyMessage(event.replyToken, {
-        type: 'text',
-        text: `請點選下方選單，或輸入「簡章／獎學金／系所／入學管道」查詢相關資訊 🙂\n需專人協助，請輸入「真人諮詢」。`
-    }).catch(handleError);
+    // F. 未命中選單關鍵字 → 不自動回覆
+    // 本帳號為真人客服（聊天模式，「此官方帳號由負責人員回覆訊息」）。
+    // 若對每則非關鍵字訊息都回預設句，會在專員與使用者對話時一直插話洗版。
+    // 故一律靜默，交由真人專員回覆；選單卡片與關鍵字查詢仍正常運作。
+    return Promise.resolve(null);
 }
 
 // 輔助函式：建立學院輪播卡片
